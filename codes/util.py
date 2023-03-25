@@ -169,7 +169,7 @@ class Queue:
         """
 
         "*** YOUR MAY CODE HERE ***"
-        return self.list.pop()
+        return self.list.pop(0)
 
     def isEmpty(self):
         "Returns true if the queue is empty"
