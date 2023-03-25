@@ -139,7 +139,7 @@ class Stack:
         "Push 'item' onto the stack"
 
         "*** YOUR MAY CODE HERE ***"
-        self.list.insert(0,item)
+        self.list.append(item)
 
     def pop(self):
         "Pop the most recently pushed item from the stack"
