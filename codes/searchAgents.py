@@ -40,6 +40,7 @@ from game import Actions
 import util
 import time
 import search
+import math
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -167,6 +168,9 @@ class PositionSearchProblem(search.SearchProblem):
     def getStartState(self):
         return self.startState
 
+    def getGoalstate(self):
+        return self.goal
+
     def isGoalState(self, state):
         isGoal = state == self.goal
 
@@ -253,12 +257,20 @@ class StayWestSearchAgent(SearchAgent):
 def manhattanHeuristic(position, problem, info={}):
     "The Manhattan distance heuristic for a PositionSearchProblem"
     
-    "*** YOUR CODE HERE ***"
+    end = problem.getGoalstate()
+    cost = abs((position[0]-end[0]))+abs((position[1]-end[1]))
+
+    return cost
+
+
 
 def euclideanHeuristic(position, problem, info={}):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     
     "*** YOUR CODE HERE ***"
+    end = problem.getGoalstate()
+    cost = math.sqrt(pow((position[0]-end[0]), 2)+pow((position[1]-end[1]),2))
+    return cost
 
 #####################################################
 # This portion is incomplete.  Time to write code!  #

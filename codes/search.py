@@ -79,7 +79,7 @@ def calc_total_cost(ls):
         cost+=ls[i][2]
     
     return cost
-def search(problem,fringe,haveCost=False):
+def search(problem,fringe,haveCost=False,heuristic=None):
     start_state = (problem.getStartState(),'Stop',1)
     explore_list = []
 
@@ -92,7 +92,10 @@ def search(problem,fringe,haveCost=False):
                 st = curr_state.copy()
                 st.append(s)
                 if (haveCost):
-                    cost= calc_total_cost(st)
+                    if(heuristic!=None):
+                        cost= calc_total_cost(st)+heuristic(s[0],problem)
+                    else:
+                        cost= calc_total_cost(st) 
                     # print("state: ",st, "       cost:",cost)
                     fringe.push(st,cost)  
                 else:
@@ -100,8 +103,6 @@ def search(problem,fringe,haveCost=False):
             explore_list.append(curr_state[-1][0])
         
         curr_state = fringe.pop()
-        if(haveCost):
-            print("state: ",curr_state, "       cost:",calc_total_cost(curr_state))
 
 
 
@@ -159,8 +160,12 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
+
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    
+    return search(problem,fringe,True,heuristic)
+
 
 
 # Abbreviations
