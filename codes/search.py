@@ -73,8 +73,13 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-
-def search(problem,fringe):
+def calc_total_cost(ls):
+    cost=0
+    for i in range(len(ls)):
+        cost+=ls[i][2]
+    
+    return cost
+def search(problem,fringe,haveCost=False):
     start_state = (problem.getStartState(),'Stop',1)
     explore_list = []
 
@@ -86,10 +91,18 @@ def search(problem,fringe):
             for s in problem.getSuccessors(curr_state[-1][0]):
                 st = curr_state.copy()
                 st.append(s)
-                fringe.push(st)
+                if (haveCost):
+                    cost= calc_total_cost(st)
+                    # print("state: ",st, "       cost:",cost)
+                    fringe.push(st,cost)  
+                else:
+                    fringe.push(st)
             explore_list.append(curr_state[-1][0])
         
         curr_state = fringe.pop()
+        if(haveCost):
+            print("state: ",curr_state, "       cost:",calc_total_cost(curr_state))
+
 
 
     actions = []
@@ -132,7 +145,10 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    
+    return search(problem,fringe,True)
+    
 
 def nullHeuristic(state, problem=None):
     """
