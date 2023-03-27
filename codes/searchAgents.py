@@ -279,7 +279,6 @@ def euclideanHeuristic(position, problem, info={}):
 class CornersProblem(search.SearchProblem):
     """
     This search problem finds paths through all four corners of a layout.
-
     You must select a suitable state space and successor function
     """
 
@@ -293,40 +292,53 @@ class CornersProblem(search.SearchProblem):
         self.corners = ((1,1), (1,top), (right, 1), (right, top))
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
-                print('Warning: no food in corner ' + str(corner))
+                print ('Warning: no food in corner ' + str(corner))
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
+        
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """ A state space can be the start coordinates and a list to hold visited corners"""
+        return (self.startingPosition,list())
+        
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        """ Check to see if a state is a corner, and if so are the other corners visited"""
+        position = state[0]
+        visitedCorners_list = state[1]
+
+        if(position in self.corners and (not position in visitedCorners_list)):
+            visitedCorners_list.append(position)
+            
+        return len(visitedCorners_list) == 4
+        
+
 
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
-
          As noted in search.py:
             For a given state, this should return a list of triples, (successor,
             action, stepCost), where 'successor' is a successor to the current
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
         successors = []
-        for action in [Directions.NORTH, Directions.WEST, Directions.SOUTH, Directions.EAST]:
+        x,y = state[0]
+        visitedCorners = state[1]
+
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
             #   x,y = currentPosition
@@ -336,7 +348,23 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
 
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            next_pos = (nextx,nexty)
+            visitedCorners_list_copy = state[1].copy()
+            
+            if(next_pos in self.corners and (not next_pos in visitedCorners_list_copy )):
+                visitedCorners_list_copy.append(next_pos)
+            
+
+            if not self.walls[nextx][nexty]:
+                cost = 1
+                successor = ((next_pos, visitedCorners_list_copy), action, cost)
+                successors.append(successor)
+
+                
         self._expanded += 1 # DO NOT CHANGE
+
         return successors
 
     def getCostOfActions(self, actions):
@@ -351,6 +379,7 @@ class CornersProblem(search.SearchProblem):
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]: return 999999
         return len(actions)
+
 
 
 def cornersHeuristic(state, problem):
