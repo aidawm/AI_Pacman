@@ -166,7 +166,39 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     
     return search(problem,fringe,True,heuristic)
 
+def iterativeDeeping(problem,start_pose,max_deep = 100):
+    
+    start_state = (start_pose,'Stop',1)
 
+    for i in range(1,max_deep+1,1):
+        fringe = util.Stack()
+        explore_list = []
+
+        curr_state = []
+        curr_state.append(start_state)
+
+        while(not problem.isGoalState(curr_state[-1][0]) ):
+            if (not (curr_state[-1][0] in explore_list)) and (len(curr_state)<i):
+                # print(i ‍, len(curr_state))
+                for s in problem.getSuccessors(curr_state[-1][0]):
+                    st = curr_state.copy()
+                    st.append(s)
+                    
+                    fringe.push(st)
+                explore_list.append(curr_state[-1][0])
+            if(fringe.isEmpty()):
+                break
+            curr_state = fringe.pop()
+
+        if not problem.isGoalState(curr_state[-1][0]) : 
+            continue
+
+        actions = []
+        for s in curr_state[1:]:
+            actions.append(s[1])
+        
+        return actions
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch

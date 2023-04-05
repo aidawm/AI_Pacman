@@ -33,7 +33,7 @@ description for details.
 
 Good luck and happy searching!
 """
-
+from search import iterativeDeeping
 from game import Directions
 from game import Agent
 from game import Actions
@@ -298,7 +298,8 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
-        
+        self.startingGameState = startingGameState
+
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -380,17 +381,24 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+def count_walls(pos1 , pos2,walls):
+    cnt = 0
+
+    for w in walls :
+        if(w[0]<pos1[0] and w[0]>pos2[0]) or (w[0]<pos1[0] and w[0]>pos2[0]):
+            if(w[1]<pos1[1] and w[1]>pos2[1]) or (w[1]<pos1[1] and w[1]>pos2[1]):
+                cnt+=1
+
+    return cnt
+
 
 
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
-
       state:   The current search state
                (a data structure you chose in your search problem)
-
       problem: The CornersProblem instance for this layout.
-
     This function should always return a number that is a lower bound on the
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
@@ -399,7 +407,22 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    position = state[0]
+    visitedCorners = state[1]
+    unvisitedCorners = []
+
+    for corner in corners:
+        if not (corner in visitedCorners):
+            unvisitedCorners.append(corner)
+            
+    heuristicvalue=[]
+    for corner in unvisitedCorners:
+        heuristicvalue.append(mazeDistance(position,corner,problem.startingGameState))
+    
+    if len(heuristicvalue)==0:
+        return 0 
+
+    return 0.2*sum(heuristicvalue)+0.8*max(heuristicvalue)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -491,9 +514,14 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+
+    
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodposition = foodGrid.asList()
+    heuristic = [0]
+    for pos in foodposition:
+        heuristic.append(mazeDistance(position,pos,problem.startingGameState))
+    return 0.15*sum(heuristic)+0.85*max(heuristic)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -524,7 +552,9 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+    
+        
+        return iterativeDeeping(problem,startPosition)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -560,7 +590,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return state in self.food.asList()
+
 
 def mazeDistance(point1, point2, gameState):
     """
