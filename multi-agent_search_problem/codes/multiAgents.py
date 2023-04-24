@@ -367,7 +367,12 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+    def get_agent_successor_list(self,gameState,agentid):
 
+        agent_actions = gameState.getLegalActions(agentid)
+
+        agent_successor =lambda  a : gameState.generateSuccessor(agentid,a)
+        return [agent_successor(a) for a in agent_actions]
     def getAction(self, gameState):
         """
         Returns the expectimax action using self.depth and self.evaluationFunction
@@ -375,8 +380,69 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        pacman_index = 0
+
+
+        successorGameState_list = self.get_agent_successor_list(gameState, pacman_index)
+
+        pacman_successor_score =lambda successor_state : self.ghost_choices(successor_state, 0,1)
+
+        pacman_score_list = [pacman_successor_score(s) for s in successorGameState_list]
+        bestScore = max(pacman_score_list)
+        bestIndices = [index for index in range(len(pacman_score_list)) if pacman_score_list[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
+        
+        pacman_actions = gameState.getLegalActions(pacman_index)
+
+        return pacman_actions[chosenIndex]
+
+
+    def minimax_terminate_state(self,gameState,curr_depth):
+        if gameState.isLose() or gameState.isWin():
+            return 1
+        
+        if curr_depth == self.depth : 
+            return 1
+
+        return 0 
+
+
+
+    def pacman_choices(self,gameState,curr_depth):
+        if self.minimax_terminate_state(gameState,curr_depth):
+            return self.evaluationFunction(gameState)
+
+        successor_score = lambda successor_state : self.ghost_choices(successor_state,curr_depth,1)
+        pacman_succesors = self.get_agent_successor_list(gameState,0)
+
+        choices_list = [successor_score(s) for s in pacman_succesors]
+
+        return max(choices_list)
+
+
+    
+    def ghost_choices(self,gameState,curr_depth,ghost_id):
+
+        if self.minimax_terminate_state(gameState,curr_depth):
+            return self.evaluationFunction(gameState)
+
+
+        successor_score =   None
+
+        if(ghost_id == (gameState.getNumAgents() -1) ):
+            successor_score = lambda successor_state : self.pacman_choices(successor_state,(curr_depth+1))
+        else:
+            successor_score = lambda successor_state : self.ghost_choices(successor_state,curr_depth,(ghost_id+1))
+        
+        ghost_succesors = self.get_agent_successor_list(gameState,ghost_id)
+
+        choices_list = [successor_score(s) for s in ghost_succesors]
+
+        return sum(choices_list)/(len(choices_list))
+        
+
 
 def betterEvaluationFunction(currentGameState):
     """
