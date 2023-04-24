@@ -280,10 +280,88 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState):
         """
-        Returns the minimax action using self.depth and self.evaluationFunction
+          Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        alfa = -999999
+        beta = 999999
+        pacman_index = 0
+        best_action = -1
+        pacman_actions = gameState.getLegalActions(pacman_index)
+        for  a in pacman_actions:
+        
+            state = gameState.generateSuccessor(pacman_index,a)
+            score = self.ghost_choices(state, 0,1,alfa,beta)
+            
+            if (score > alfa):
+                alfa = score
+                best_action = a
+                
+            if (alfa > beta):
+                return best_action
+        
+        return best_action
+
+
+        
+    def minimax_terminate_state(self,gameState,curr_depth):
+        if gameState.isLose() or gameState.isWin():
+            return 1
+        
+        if curr_depth == self.depth : 
+            return 1
+
+        return 0 
+
+
+
+    def pacman_choices(self,gameState,curr_depth,alfa,beta):
+        if self.minimax_terminate_state(gameState,curr_depth):
+            return self.evaluationFunction(gameState)
+        pacman_score = -999999
+        pacman_actions = gameState.getLegalActions(0)
+        for  a in pacman_actions:
+            state = gameState.generateSuccessor(0,a)
+            successor_score = lambda successor_state : self.ghost_choices(successor_state,curr_depth,1,alfa,beta)
+            score = successor_score(state)
+            if(pacman_score < score):
+                pacman_score = score
+            
+            alfa = max(alfa,score)
+            if(alfa > beta):
+                return alfa
+        return pacman_score
+
+
+    
+    def ghost_choices(self,gameState,curr_depth,ghost_id,alfa,beta):
+        if self.minimax_terminate_state(gameState,curr_depth):
+            return self.evaluationFunction(gameState)
+        ghost_score = 999999
+        ghost_actions = gameState.getLegalActions(ghost_id)
+        for  a in ghost_actions:
+            state = gameState.generateSuccessor(ghost_id,a)
+
+            successor_score =   None
+
+            if(ghost_id == (gameState.getNumAgents() -1) ):
+                successor_score = lambda successor_state : self.pacman_choices(successor_state,(curr_depth+1),alfa,beta)
+            
+            else:
+                successor_score = lambda successor_state : self.ghost_choices(successor_state,curr_depth,(ghost_id+1),alfa,beta)
+
+            score = successor_score(state)
+            if(ghost_score>score):
+                ghost_score = score
+
+            beta = min(beta,score)
+           
+            if(alfa > beta):
+                return beta
+        
+
+        return ghost_score
+        
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
