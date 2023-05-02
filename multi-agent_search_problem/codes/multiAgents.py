@@ -105,28 +105,26 @@ class ReflexAgent(Agent):
         if(len(newFood.asList()) < len(currentGameState.getFood().asList())):
             total_score += 2000
         if(curr_state_near_food  > nearest_food_dist):
-            total_score += 1000/(nearest_food_dist**2)
+            total_score += 1500/(nearest_food_dist**2)
         
 
-        if(nearest_ghost_dist<7):                  
+        if(nearest_ghost_dist<=7):                  
    
             if(manhattanDistance(currentGameState.getPacmanPosition(), nearest_ghost.getPosition())< nearest_ghost_dist):
                 capsule_list = successorGameState.getCapsules()
                 if(len(capsule_list) >0):
                     nearest_capsule,nearest_capsule_dist = self.find_nearest_object(newPos,capsule_list)  
-                    if(manhattanDistance(currentGameState.getPacmanPosition(),  nearest_capsule)< nearest_capsule_dist and not(nearest_ghost.scaredTimer >0) and nearest_capsule_dist <5):
+                    if(manhattanDistance(currentGameState.getPacmanPosition(),  nearest_capsule)< nearest_capsule_dist 
+                        and not(nearest_ghost.scaredTimer >0) and nearest_capsule_dist <5):
                         total_score +=2000
 
                 total_score += 1000
-            else :
-                if(nearest_ghost.scaredTimer >0):
-                    total_score += 500
-                    total_score -= 500
+    
 
-            if(nearest_ghost_dist<3):
+            if(nearest_ghost_dist<=3):
 
                 if(manhattanDistance(currentGameState.getPacmanPosition(), nearest_ghost.getPosition())< nearest_ghost_dist):
-                    total_score += 5000
+                    total_score += 3000
                 else :
                     if(nearest_ghost.scaredTimer >0):
                         if(nearest_ghost_dist < (nearest_ghost.scaredTimer-1)):
@@ -136,9 +134,6 @@ class ReflexAgent(Agent):
                     else: 
                         total_score -=3000
 
-        
-        if action == Directions.STOP:
-            total_score -= 50000
  
         
         
@@ -448,7 +443,6 @@ def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
-
     Don't forget to use pacmanPosition, foods, scaredTimers, ghostPositions!
     DESCRIPTION: <write something here so we know what you did>
     """
