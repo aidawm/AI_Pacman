@@ -443,18 +443,60 @@ def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
-    Don't forget to use pacmanPosition, foods, scaredTimers, ghostPositions!
     DESCRIPTION: <write something here so we know what you did>
     """
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    new_scared_times = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-    pacmanPosition = currentGameState.getPacmanPosition()
-    foods = currentGameState.getFood()
-    ghostStates = currentGameState.getGhostStates()
-    scaredTimers = [ghostState.scaredTimer for ghostState in ghostStates]
-    ghostPositions = currentGameState.getGhostPositions()
+    food_distance = [0]
+    for pos in newFood.asList():
+        d = manhattanDistance(newPos, pos) 
+        if d !=0:
+            food_distance.append(1.0/d)
+        else:
+            food_distance.append(9999)
+
+    ghost_distance = [0]
+    for pos in [ghost.getPosition() for ghost in newGhostStates]:
+        ghost_distance.append(manhattanDistance(newPos, pos))
+
+    number_of_power_pellets = len(currentGameState.getCapsules())
+    capsule_distance = [0]
+    for pos in [capsule for capsule in currentGameState.getCapsules()] : 
+        d = manhattanDistance(newPos, pos) 
+        if(d!=0):
+            capsule_distance.append(1.0/d)
+        else : 
+            capsule_distance.append(9999)
+
+    min_food = 9999
+    for f in food_distance :
+        if(min_food> f):
+            min_food = f 
+
+    min_ghost = 9999
+    for g in ghost_distance :
+        if(min_ghost> g):
+            min_ghost = g
+    score = 0
+
+    total_distance = sum(food_distance) 
+    sum_scared_times = sum(new_scared_times)
+    sum_ghost_distance = sum(ghost_distance)
+    eaten_food_number = len(newFood.asList(False))
+
+    score += currentGameState.getScore() + total_distance + eaten_food_number 
+
+    if sum_scared_times > 0:
+        score += sum_scared_times  - sum_ghost_distance + 2*min_food
+    else:
+        score += sum_ghost_distance + number_of_power_pellets +sum(capsule_distance) - min_ghost*4
+    return score
     
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
