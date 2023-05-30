@@ -422,7 +422,7 @@ def cornersHeuristic(state, problem):
     if len(heuristicvalue)==0:
         return 0 
 
-    return 0.2*sum(heuristicvalue)+0.8*max(heuristicvalue)
+    return max(heuristicvalue)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -521,7 +521,7 @@ def foodHeuristic(state, problem):
     heuristic = [0]
     for pos in foodposition:
         heuristic.append(mazeDistance(position,pos,problem.startingGameState))
-    return 0.15*sum(heuristic)+0.85*max(heuristic)
+    return max(heuristic)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
