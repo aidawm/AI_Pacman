@@ -38,11 +38,13 @@ class QLearningAgent(ReinforcementAgent):
         - self.getLegalActions(state)
           which returns legal actions for a state
     """
+
     def __init__(self, **args):
         "You can initialize Q-values here..."
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        self.Qvalues = dict()
 
     def getQValue(self, state, action):
         """
@@ -51,8 +53,16 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        if(state in self.Qvalues):
+          state_qvales = self.Qvalues[state]
+          if(action in state_qvales):
+            return state_qvales[action]
+          else:
+            state_qvales[action] = 0
+            return 0
+        else:
+          self.Qvalues[state] = {action : 0}
+          return 0
 
     def computeValueFromQValues(self, state):
         """
@@ -62,7 +72,11 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = self.getLegalActions(state)
+        if len(actions) == 0:
+            return 0.0
+
+        return max(self.getQValue(state, action) for action in actions)
 
     def computeActionFromQValues(self, state):
         """
@@ -71,7 +85,13 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        best_action = [None]
+        actions = self.getLegalActions(state)
+
+        maxvalue = self.computeValueFromQValues(state)
+        best_action = [action for action in actions if self.getQValue(state, action) == maxvalue]
+
+        return random.choice(best_action)
 
     def getAction(self, state):
         """
@@ -86,11 +106,10 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Pick Action
         legalActions = self.getLegalActions(state)
-        action = None
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
-        return action
+        if util.flipCoin(self.epsilon):
+            return random.choice(legalActions)
+        return self.computeActionFromQValues(state)
 
     def update(self, state, action, nextState, reward):
         """
@@ -102,7 +121,9 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Q(s,a) = (1 - alpha) * Q(s,a) + alpha * (r + gamma * max(Q(s',a')))
+        sample =reward + self.discount * self.getValue(nextState)
+        self.Qvalues[state][action] = ((1.0 - self.alpha) * self.getQValue(state, action)) + (self.alpha * sample)
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
