@@ -184,6 +184,56 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
+    def get_max_value(self,state):
+        max_value = -9999
+        for action in self.mdp.getPossibleActions(state) :
+            q_value = self.computeQValueFromValues(state, action)
+            if(q_value > max_value):
+                max_value = q_value
+        return max_value
+
+        
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
 
+        # creating predecessors dictionary
+        predecessors = dict()
+
+        for s in self.mdp.getStates():
+            predecessors[s]= list()
+        
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                for action in self.mdp.getPossibleActions(state):
+                    for stateProb in self.mdp.getTransitionStatesAndProbs(state, action):
+                        predecessors[stateProb[0]].append(state)
+    
+        # creating a empty queue for keep priorities
+        queue = util.PriorityQueue()
+
+        # for non-terminal states we add them to the queue 
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                max_value = self.get_max_value(state)
+                diff = abs(self.values[state] - max_value)
+                queue.update(state, -diff)
+
+
+
+        # for the number of iterations we run the algorithm
+        for iteration in range(self.iterations):
+            if queue.isEmpty():
+                break
+            state = queue.pop()
+            if not self.mdp.isTerminal(state):
+                max_value = self.get_max_value(state)
+                self.values[state] = max_value
+
+            # calculating the diff again, and then we will update the value
+            # if it was more than theta
+            for p in predecessors[state]:
+                if not self.mdp.isTerminal(p):
+                    max_value = self.get_max_value(p)
+                    diff = abs(self.values[p] - max_value)
+                    if diff > self.theta:
+                        queue.update(p, -diff)
