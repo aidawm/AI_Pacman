@@ -71,6 +71,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                     transition = self.mdp.getTransitionStatesAndProbs(s, a)
                     sum_of_values = 0.0
                     for state_prob in transition:
+                        print(state_prob)
                         sum_of_values += state_prob[1] * (self.mdp.getReward(s, a, state_prob[0]) + (self.discount * self.values[state_prob[0]]))
                     max_value_s = max(max_value_s, sum_of_values)
                 if max_value_s != -9999:
