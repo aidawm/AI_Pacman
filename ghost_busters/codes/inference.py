@@ -76,7 +76,13 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        sum_values = self.total()
+
+        if sum_values == float(0):
+            return
+
+        for key in self.keys():
+            self[key] = float(self[key]) / sum_values
 
     def sample(self):
         """
@@ -283,8 +289,13 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
 
+        pacmanPosition = gameState.getPacmanPosition()
+        jailPosition = self.getJailPosition()
+
+        for position in self.allPositions:
+            self.beliefs[position] = self.getObservationProb(observation, pacmanPosition, position, jailPosition) * \
+                                          self.beliefs[position]
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
@@ -297,7 +308,14 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        discrete_distribution = DiscreteDistribution()
+
+        for ghost_pos in self.allPositions:
+            for newPos, prob in self.getPositionDistribution(gameState, ghost_pos).items():
+                discrete_distribution[newPos] += self.beliefs[ghost_pos] * prob
+
+        discrete_distribution.normalize()
+        self.beliefs = discrete_distribution
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -340,6 +358,8 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         raiseNotDefined()
+
+        self.beliefs.normalize()
 
     def elapseTime(self, gameState):
         """
